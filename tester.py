@@ -54,7 +54,7 @@ def main():
         sys.exit(1)
 
     # 4. Print the result side-by-side
-    print(f"Oathtool: {GREEN}{oathtool_output}{RESET} | My ft_otp: {CYAN}{ft_otp_output}{RESET}")
+    print(f"Oathtool: {GREEN}{oathtool_output}{RESET} || ft_otp: {CYAN}{ft_otp_output}{RESET}")
 
     # 5. Automatic validation
     if oathtool_output == ft_otp_output:
