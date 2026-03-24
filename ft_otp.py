@@ -75,24 +75,44 @@ def generate_totp(key_filename):
         sys.exit(1)
 
     # TOTP Algorithm (RFC 6238 based on RFC 4226)
-    # 1. Get the current time and calculate T0 (every 30 seconds)
+    
+    # --- 1. TIME FACTOR ---
+    # Get the current time in seconds and calculate the 30-second time window.
     current_time = int(time.time())
     time_step = current_time // 30
 
-    # 2. Pack the counter into 8 bytes (Big-Endian)
+    # --- 2. PACKING ---
+    # Pack the time_step into an 8-byte format (Big-Endian) required by the hash algorithm.
     msg = struct.pack('>Q', time_step)
 
-    # 3. Calculate HMAC-SHA1
-    hmac_hash = hmac.new(key_bytes, msg, hashlib.sha1).digest()
+    # --- 3. HMAC-SHA1 GENERATION ---
+    # Create the HMAC using the secret key, the time message, and the SHA1 algorithm.
+    hmac_obj = hmac.new(key_bytes, msg, hashlib.sha1)
+    hmac_hash = hmac_obj.digest()  # This returns exactly 20 bytes.
 
-    # 4. Dynamic Truncation (RFC 4226)
-    offset = hmac_hash[-1] & 0x0f
-    # Unpack 4 bytes starting at the offset and apply mask to discard the sign bit
-    binary_code = struct.unpack_from('>I', hmac_hash, offset)[0] & 0x7fffffff
+    # --- 4. DYNAMIC TRUNCATION ---
+    # Step A: Get the very last byte of the 20-byte hash.
+    last_byte = hmac_hash[-1]
+    
+    # Step B: Apply a mask (0x0f) to isolate the last 4 bits. 
+    # This gives us an offset index ranging from 0 to 15.
+    offset = last_byte & 0x0f
 
-    # 5. Get the 6 digits
-    otp = binary_code % 1000000
-    print(f"{otp:06d}")
+    # Step C: Use the offset to extract exactly 4 bytes from the hash. 
+    # '>I' reads these bytes as an unsigned integer in Big-Endian format.
+    extracted_bytes = struct.unpack_from('>I', hmac_hash, offset)
+    raw_number = extracted_bytes[0]
+
+    # Step D: Apply the 0x7fffffff mask to discard the sign bit.
+    # This ensures the resulting number is always positive.
+    positive_number = raw_number & 0x7fffffff
+
+    # Step E: Use the modulo operator (%) to keep only the last 6 digits.
+    otp_number = positive_number % 1000000
+
+    # --- 5. FINAL OUTPUT ---
+    # Print the OTP, padding with leading zeros if it is shorter than 6 digits (e.g., 004521).
+    print(f"{otp_number:06d}")
 
 def main():
     parser = argparse.ArgumentParser(description="Time-based One-Time Password generator", add_help=False)
