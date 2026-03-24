@@ -15,14 +15,16 @@ load_dotenv()
 
 env_key = os.getenv("OTP_SECRET_KEY")
 if not env_key:
-    print("❌ Error: No file .env")
+    print("❌ Error: OTP_SECRET_KEY is missing or empty in file .env")
     sys.exit(1)
 
 LOCAL_ENCRYPTION_KEY = env_key.encode('utf-8')
 
 def is_valid_hex(s):
-    """Checks if the string has at least 64 characters and is purely hexadecimal."""
-    return len(s) >= 64 and bool(re.fullmatch(r'[0-9a-fA-F]+', s))
+    is_long_enough = len(s) >= 64
+    is_hex = bool(re.fullmatch(r'[0-9a-fA-F]+', s))
+    is_valid = is_long_enough and is_hex
+    return is_valid
 
 def save_key(filename):
     """Option -g: Saves the hexadecimal key securely encrypted."""
