@@ -26,14 +26,59 @@ pip install -r requirements.txt
 
 ---
 
-Generar clave con:
-python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+## Quickstart
 
+Complete flow from scratch to your first OTP code:
+
+**1. Generate a hex secret key**
+
+A valid `key.hex` must contain at least 64 hexadecimal characters. You can create one with:
+
+```bash
+python3 -c "import secrets; print(secrets.token_hex(32))" > key.hex
+```
+
+Or write your own directly into `key.hex`.
+
+**2. (Optional) Regenerate the local encryption key**
+
+`ft_otp.py` uses a Fernet key hardcoded in `LOCAL_ENCRYPTION_KEY` to encrypt `ft_otp.key` at rest. If you want to rotate it, generate a new one with:
+
+```bash
+python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+```
+
+Then replace the value of `LOCAL_ENCRYPTION_KEY` in `ft_otp.py` with the output.
+
+**3. Encrypt and save the key**
+
+```bash
+python3 ft_otp.py -g key.hex
+# → Key was successfully saved in ft_otp.key.
+```
+
+This reads `key.hex`, encrypts its contents, and writes the result to `ft_otp.key`.
+
+**4. Generate a TOTP code**
+
+```bash
+python3 ft_otp.py -k ft_otp.key
+# → 048271
+```
+
+**5. Verify against oathtool (optional)**
+
+```bash
+oathtool --totp $(cat key.hex)
+```
+
+Both outputs should match within the same 30-second window.
+
+---
 
 ## ft_otp.py
 
 Saves a hexadecimal secret key encrypted on disk, then uses it to generate TOTP codes on demand.
-
 
 ```
 ./ft_otp.py -g FILE
