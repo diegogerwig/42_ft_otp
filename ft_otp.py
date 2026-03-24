@@ -32,11 +32,11 @@ def save_key(filename):
         with open(filename, 'r') as f:
             hex_key = f.read().strip()
     except FileNotFoundError:
-        print(f"./ft_otp: error: {filename} not found.")
+        print(f"❌ Error: {filename} not found.")
         sys.exit(1)
 
     if not is_valid_hex(hex_key):
-        print("./ft_otp: error: key must be 64 hexadecimal characters.")
+        print("❌ Error: key must be 64 hexadecimal characters.")
         sys.exit(1)
 
     # Encrypt the key
@@ -49,7 +49,7 @@ def save_key(filename):
             f.write(encrypted_key)
         print("Key was successfully saved in ft_otp.key.")
     except IOError:
-        print("./ft_otp: error: could not save ft_otp.key.")
+        print("❌ Error: could not save ft_otp.key.")
         sys.exit(1)
 
 def generate_totp(key_filename):
@@ -58,20 +58,20 @@ def generate_totp(key_filename):
         with open(key_filename, 'rb') as f:
             encrypted_key = f.read()
     except FileNotFoundError:
-        print(f"./ft_otp: error: {key_filename} not found.")
+        print(f"❌ Error: {key_filename} not found.")
         sys.exit(1)
 
     try:
         cipher_suite = Fernet(LOCAL_ENCRYPTION_KEY)
         decrypted_hex_key = cipher_suite.decrypt(encrypted_key).decode('utf-8')
     except Exception:
-        print("./ft_otp: error: ft_otp.key file is corrupted or key is invalid.")
+        print("❌ Error: ft_otp.key file is corrupted or key is invalid.")
         sys.exit(1)
 
     try:
         key_bytes = bytes.fromhex(decrypted_hex_key)
     except ValueError:
-        print("./ft_otp: error: invalid hexadecimal format in decrypted file.")
+        print("❌ Error: invalid hexadecimal format in decrypted file.")
         sys.exit(1)
 
     # TOTP Algorithm (RFC 6238 based on RFC 4226)
@@ -104,7 +104,7 @@ def main():
         args = parser.parse_args()
     except SystemExit:
         # Silence long errors and output a generic one if invalid arguments are provided
-        print("./ft_otp: error: please check the provided arguments.")
+        print("❌ Error: please check the provided arguments.")
         sys.exit(1)
 
     if args.g:
