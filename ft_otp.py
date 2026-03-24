@@ -8,9 +8,17 @@ import hashlib
 import re
 from cryptography.fernet import Fernet
 
-# Static key to locally encrypt the ft_otp.key file
-# (In a real production system, this would depend on a user password or the system keyring)
-LOCAL_ENCRYPTION_KEY = b'G-KaNdXoF_q8v_p7dD0i0x3w3K8v9bL0p4H7jZ9q2_A='
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+env_key = os.getenv("OTP_SECRET_KEY")
+if not env_key:
+    print("❌ Error: No file .env")
+    sys.exit(1)
+
+LOCAL_ENCRYPTION_KEY = env_key.encode('utf-8')
 
 def is_valid_hex(s):
     """Checks if the string has at least 64 characters and is purely hexadecimal."""

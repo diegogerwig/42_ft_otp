@@ -26,9 +26,14 @@ pip install -r requirements.txt
 
 ---
 
+Generar clave con:
+python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+
+
 ## ft_otp.py
 
 Saves a hexadecimal secret key encrypted on disk, then uses it to generate TOTP codes on demand.
+
 
 ```
 ./ft_otp.py -g FILE

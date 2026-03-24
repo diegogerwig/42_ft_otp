@@ -4,7 +4,6 @@ import sys
 import time
 from datetime import datetime
 
-# ANSI color definitions for terminal output
 GREEN = '\033[1;32m'
 CYAN = '\033[1;36m'
 RED = '\033[1;31m'
