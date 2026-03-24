@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import os
+from dotenv import load_dotenv
 import argparse
 import sys
 import time
@@ -8,8 +10,6 @@ import hashlib
 import re
 from cryptography.fernet import Fernet
 
-import os
-from dotenv import load_dotenv
 
 load_dotenv()
 
