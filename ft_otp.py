@@ -103,7 +103,6 @@ def main():
     try:
         args = parser.parse_args()
     except SystemExit:
-        # Silence long errors and output a generic one if invalid arguments are provided
         print("❌ Error: please check the provided arguments.")
         sys.exit(1)
 
