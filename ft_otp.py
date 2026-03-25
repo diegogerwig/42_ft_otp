@@ -74,7 +74,7 @@ def generate_totp(key_filename):
         print("❌ Error: invalid hexadecimal format in decrypted file.")
         sys.exit(1)
 
-    # TOTP Algorithm (RFC 6238 based on RFC 4226)
+    # TOTP Algorithm (based on RFC 4226)
     
     # --- 1. TIME FACTOR ---
     # Get the current time in seconds and calculate the 30-second time window.
