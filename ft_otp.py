@@ -148,7 +148,7 @@ def main():
     try:
         args = parser.parse_args()
     except SystemExit:
-        print("❌ Error: please check the provided arguments. ")
+        print("❌ Error: please check the provided arguments.")
         sys.exit(1)
 
     if args.g:
