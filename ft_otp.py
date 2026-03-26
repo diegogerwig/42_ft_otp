@@ -9,10 +9,8 @@ import re
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Retrieve the master password from the environment
 env_password = os.getenv("MASTER_PASSWORD")
 if not env_password:
     print("❌ Error: MASTER_PASSWORD is missing or empty in the .env file.")
@@ -26,31 +24,31 @@ def custom_xor_cipher(data_bytes):
     Encrypts or decrypts a byte stream using the XOR operation.
     Since XOR is reversible, the same function works for both processes.
     """
-    # Step 1: Create a secure 32-byte base key using SHA-256
+    # Create a secure 32-byte base key using SHA-256
     base_key = hashlib.sha256(MASTER_PASSWORD).digest()
     key_length = len(base_key)
     
-    # Step 2: Create an empty array to store the final encrypted/decrypted bytes
+    # Create an empty array to store the final encrypted/decrypted bytes
     result = bytearray()
     
-    # Step 3: Loop through each byte of the data we want to encrypt/decrypt
+    # Loop through each byte of the data we want to encrypt/decrypt
     for i in range(len(data_bytes)):
         
-        # Step 4: Get the current byte from the data
+        # Get the current byte from the data
         current_data_byte = data_bytes[i]
         
-        # Step 5: Get the corresponding byte from the key.
+        # Get the corresponding byte from the key.
         # We use modulo (%) so if the data is longer than 32 bytes, 
         # the key simply starts over from the beginning (0, 1, 2... 31, 0, 1...)
         current_key_byte = base_key[i % key_length]
         
-        # Step 6: Apply the XOR operation (^) between the data byte and the key byte
+        # Apply the XOR operation (^) between the data byte and the key byte
         xored_byte = current_data_byte ^ current_key_byte
         
-        # Step 7: Add the result to our final array
+        # Add the result to our final array
         result.append(xored_byte)
         
-    # Step 8: Return the final array as an immutable bytes object
+    # Return the final array as an immutable bytes object
     return bytes(result)
 
 def is_valid_hex(s):
@@ -145,7 +143,7 @@ def generate_totp(key_filename):
 
 def main():
     parser = argparse.ArgumentParser(description="Time-based One-Time Password generator", add_help=False)
-    group = parser.add_mutually_exclusive_group(required=True)
+    group = parser.add_mutually_exclusive_group(required=True)  # Only one of these options can be used at a time, and at least one is required.
     group.add_argument('-g', metavar='FILE', help="Securely saves the hexadecimal key.")
     group.add_argument('-k', metavar='KEY_FILE', help="Generates the temporary OTP from the saved file.")
 

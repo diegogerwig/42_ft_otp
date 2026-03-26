@@ -79,7 +79,6 @@ def main():
             else:
                 print(f"Status: ❌ {RED}Discrepancy detected. Please check your algorithm.{RESET}")
 
-            # 5. Live countdown loop
             while True:
                 now = int(time.time())
                 window = now // 30
