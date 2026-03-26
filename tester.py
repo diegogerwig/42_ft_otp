@@ -9,6 +9,7 @@ GREEN = '\033[1;32m'
 CYAN = '\033[1;36m'
 RED = '\033[1;31m'
 YELLOW = '\033[1;33m'
+MAGENTA = '\033[1;35m'
 RESET = '\033[0m'
 
 def main():
@@ -70,7 +71,7 @@ def main():
                 sys.exit(1)
 
             print(f"{YELLOW}--- FT_OTP TESTER [{timestamp}] ---{RESET}")
-            print(f"Oathtool:  {GREEN}{oathtool_output}{RESET}")
+            print(f"Oathtool:  {MAGENTA}{oathtool_output}{RESET}")
             print(f"My ft_otp: {CYAN}{ft_otp_output}{RESET}")
 
             if oathtool_output == ft_otp_output:
@@ -78,17 +79,20 @@ def main():
             else:
                 print(f"Status: ❌ {RED}Discrepancy detected. Please check your algorithm.{RESET}")
 
+            # 5. Live countdown loop
             while True:
                 now = int(time.time())
                 window = now // 30
                 
-                # If we entered a new 30-second window, wait 1 second (safety buffer) before breaking.
-                # This explicitly prevents race conditions between oathtool and ft_otp executions.
-                if window != current_window and (now % 30) >= 1:
+                if window != current_window:
+                    # Force the display to hold at 00s when the window finishes
+                    print(f"\r\033[K⏳ This code is valid for: {RED}00s{RESET}", end="", flush=True)
+                    # Wait 0.5s to ensure we are safely inside the new window (prevents race conditions)
+                    time.sleep(0.5)
                     break
                 
-                # Adjusted to countdown to 00s instead of 01s
-                remaining_seconds = 29 - (now % 30)
+                # Standard authenticator countdown (from 30 down to 1)
+                remaining_seconds = 30 - (now % 30)
                 time_color = RED if remaining_seconds <= 5 else CYAN
                 
                 print(f"\r\033[K⏳ This code is valid for: {time_color}{remaining_seconds:02d}s{RESET}", end="", flush=True)
