@@ -107,7 +107,7 @@ def generate_totp(key_filename):
     time_step = current_time // 30
 
     # --- 2. PACKING ---
-    # Pack the time_step into an 8-byte format (Big-Endian) required by the hash algorithm.
+    # Pack the time_step into an 8-byte format (Big-Endian >Q) required by the hash algorithm.
     msg = struct.pack('>Q', time_step)
 
     # --- 3. HMAC-SHA1 GENERATION ---
@@ -121,7 +121,7 @@ def generate_totp(key_filename):
     
     # Step B: Apply a mask (0x0f) to isolate the last 4 bits. 
     # This gives us an offset index ranging from 0 to 15.
-    offset = last_byte & 0x0f
+    offset = last_byte & 0x0f 
 
     # Step C: Use the offset to extract exactly 4 bytes from the hash. 
     # '>I' reads these bytes as an unsigned integer in Big-Endian format.
