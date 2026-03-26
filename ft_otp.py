@@ -19,6 +19,12 @@ if not env_password:
 # Encode to bytes for the hashing function
 MASTER_PASSWORD = env_password.encode('utf-8')
 
+def is_valid_hex(s):
+    is_long_enough = len(s) >= 64
+    is_hex = bool(re.fullmatch(r'[0-9a-fA-F]+', s))
+    is_valid = is_long_enough and is_hex
+    return is_valid
+
 def custom_xor_cipher(data_bytes):
     """
     Encrypts or decrypts a byte stream using the XOR operation.
@@ -38,8 +44,6 @@ def custom_xor_cipher(data_bytes):
         current_data_byte = data_bytes[i]
         
         # Get the corresponding byte from the key.
-        # We use modulo (%) so if the data is longer than 32 bytes, 
-        # the key simply starts over from the beginning (0, 1, 2... 31, 0, 1...)
         current_key_byte = base_key[i % key_length]
         
         # Apply the XOR operation (^) between the data byte and the key byte
@@ -50,12 +54,6 @@ def custom_xor_cipher(data_bytes):
         
     # Return the final array as an immutable bytes object
     return bytes(result)
-
-def is_valid_hex(s):
-    is_long_enough = len(s) >= 64
-    is_hex = bool(re.fullmatch(r'[0-9a-fA-F]+', s))
-    is_valid = is_long_enough and is_hex
-    return is_valid
 
 def save_key(filename):
     """Option -g: Saves the hexadecimal key securely encrypted."""
