@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import os
-from dotenv import load_dotenv
 import argparse
 import sys
 import time
@@ -8,17 +6,52 @@ import struct
 import hmac
 import hashlib
 import re
-from cryptography.fernet import Fernet
+import os
+from dotenv import load_dotenv
 
-
+# Load environment variables from .env file
 load_dotenv()
 
-env_key = os.getenv("OTP_SECRET_KEY")
-if not env_key:
-    print("❌ Error: OTP_SECRET_KEY is missing or empty in file .env")
+# Retrieve the master password from the environment
+env_password = os.getenv("MASTER_PASSWORD")
+if not env_password:
+    print("❌ Error: MASTER_PASSWORD is missing or empty in the .env file.")
     sys.exit(1)
 
-LOCAL_ENCRYPTION_KEY = env_key.encode('utf-8')
+# Encode to bytes for the hashing function
+MASTER_PASSWORD = env_password.encode('utf-8')
+
+def custom_xor_cipher(data_bytes):
+    """
+    Encrypts or decrypts a byte stream using the XOR operation.
+    Since XOR is reversible, the same function works for both processes.
+    """
+    # Step 1: Create a secure 32-byte base key using SHA-256
+    base_key = hashlib.sha256(MASTER_PASSWORD).digest()
+    key_length = len(base_key)
+    
+    # Step 2: Create an empty array to store the final encrypted/decrypted bytes
+    result = bytearray()
+    
+    # Step 3: Loop through each byte of the data we want to encrypt/decrypt
+    for i in range(len(data_bytes)):
+        
+        # Step 4: Get the current byte from the data
+        current_data_byte = data_bytes[i]
+        
+        # Step 5: Get the corresponding byte from the key.
+        # We use modulo (%) so if the data is longer than 32 bytes, 
+        # the key simply starts over from the beginning (0, 1, 2... 31, 0, 1...)
+        current_key_byte = base_key[i % key_length]
+        
+        # Step 6: Apply the XOR operation (^) between the data byte and the key byte
+        xored_byte = current_data_byte ^ current_key_byte
+        
+        # Step 7: Add the result to our final array
+        result.append(xored_byte)
+        
+    # Step 8: Return the final array as an immutable bytes object
+    return bytes(result)
 
 def is_valid_hex(s):
     is_long_enough = len(s) >= 64
@@ -39,11 +72,8 @@ def save_key(filename):
         print("❌ Error: key must be 64 hexadecimal characters.")
         sys.exit(1)
 
-    # Encrypt the key
-    cipher_suite = Fernet(LOCAL_ENCRYPTION_KEY)
-    encrypted_key = cipher_suite.encrypt(hex_key.encode('utf-8'))
+    encrypted_key = custom_xor_cipher(hex_key.encode('utf-8'))
 
-    # Save it securely
     try:
         with open("ft_otp.key", "wb") as f:
             f.write(encrypted_key)
@@ -62,8 +92,7 @@ def generate_totp(key_filename):
         sys.exit(1)
 
     try:
-        cipher_suite = Fernet(LOCAL_ENCRYPTION_KEY)
-        decrypted_hex_key = cipher_suite.decrypt(encrypted_key).decode('utf-8')
+        decrypted_hex_key = custom_xor_cipher(encrypted_key).decode('utf-8')
     except Exception:
         print("❌ Error: ft_otp.key file is corrupted or key is invalid.")
         sys.exit(1)
