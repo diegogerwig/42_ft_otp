@@ -135,7 +135,7 @@ def generate_totp(key_filename):
     # Step E: Use the modulo operator (%) to keep only the last 6 digits.
     otp_number = positive_number % 1000000
 
-    # --- 5. FINAL OUTPUT --
+    # --- 5. FINAL OUTPUT ---
     # Print the OTP, padding with leading zeros if it is shorter than 6 digits.
     print(f"{otp_number:06d}")
 
