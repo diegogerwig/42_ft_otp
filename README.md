@@ -30,7 +30,17 @@ pip install -r requirements.txt
 
 Complete flow from scratch to your first OTP code:
 
-**1. Generate a hex secret key**
+**1. Configure your master password**
+
+Create a `.env` file in the project root with your master password:
+
+```bash
+echo "MASTER_PASSWORD=your_password_here" > .env
+```
+
+This password is used to derive the encryption key that protects `ft_otp.key` at rest.
+
+**2. Generate a hex secret key**
 
 A valid `key.hex` must contain at least 64 hexadecimal characters. You can create one with:
 
@@ -40,16 +50,6 @@ python3 -c "import secrets; print(secrets.token_hex(32))" > key.hex
 
 Or write your own directly into `key.hex`.
 
-**2. (Optional) Regenerate the local encryption key**
-
-`ft_otp.py` uses a Fernet key hardcoded in `LOCAL_ENCRYPTION_KEY` to encrypt `ft_otp.key` at rest. If you want to rotate it, generate a new one with:
-
-```bash
-python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
-```
-
-Then replace the value of `LOCAL_ENCRYPTION_KEY` in `ft_otp.py` with the output.
-
 **3. Encrypt and save the key**
 
 ```bash
@@ -57,7 +57,7 @@ python3 ft_otp.py -g key.hex
 # → Key was successfully saved in ft_otp.key.
 ```
 
-This reads `key.hex`, encrypts its contents, and writes the result to `ft_otp.key`.
+This reads `key.hex`, encrypts its contents using XOR with a key derived from `MASTER_PASSWORD`, and writes the result to `ft_otp.key`.
 
 **4. Generate a TOTP code**
 
@@ -95,7 +95,7 @@ Saves a hexadecimal secret key encrypted on disk, then uses it to generate TOTP 
 ./ft_otp.py -k ft_otp.key
 ```
 
-The key file must contain at least 64 hexadecimal characters. The encrypted key is stored in `ft_otp.key` using Fernet symmetric encryption.
+The key file must contain at least 64 hexadecimal characters. The encrypted key is stored in `ft_otp.key` using a XOR cipher with a SHA-256 derived key from `MASTER_PASSWORD`.
 
 The OTP is generated following the TOTP algorithm (RFC 6238):
 
@@ -131,4 +131,4 @@ oathtool --totp $(cat key.hex)
 
 | Package | Purpose |
 |---|---|
-| `cryptography` | Fernet encryption for local key storage |
+| `python-dotenv` | Loads `MASTER_PASSWORD` from the `.env` file |

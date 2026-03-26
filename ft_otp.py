@@ -94,7 +94,7 @@ def generate_totp(key_filename):
         sys.exit(1)
 
     try:
-        key_bytes = bytes.fromhex(decrypted_hex_key)
+        key_bytes = bytes.fromhex(decrypted_hex_key)  # Convert the hexadecimal string to bytes for the HMAC function.
     except ValueError:
         print("❌ Error: invalid hexadecimal format in decrypted file.")
         sys.exit(1)
@@ -112,7 +112,7 @@ def generate_totp(key_filename):
 
     # --- 3. HMAC-SHA1 GENERATION ---
     # Create the HMAC using the secret key, the time message, and the SHA1 algorithm.
-    hmac_obj = hmac.new(key_bytes, msg, hashlib.sha1)
+    hmac_obj = hmac.new(key_bytes, msg, hashlib.sha1)   
     hmac_hash = hmac_obj.digest()  # This returns exactly 20 bytes.
 
     # --- 4. DYNAMIC TRUNCATION ---
@@ -136,7 +136,7 @@ def generate_totp(key_filename):
     otp_number = positive_number % 1000000
 
     # --- 5. FINAL OUTPUT ---
-    # Print the OTP, padding with leading zeros if it is shorter than 6 digits (e.g., 004521).
+    # Print the OTP, padding with leading zeros if it is shorter than 6 digits.
     print(f"{otp_number:06d}")
 
 def main():
